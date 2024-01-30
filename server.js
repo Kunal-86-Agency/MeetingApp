@@ -4,6 +4,7 @@ const UserRouter = require("./Routes/User.routes");
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const AdminRouter = require("./Routes/Admin.routes");
 require("dotenv").config();
 
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 
 app.use("/user", UserRouter)
+app.use("/admin", AdminRouter)
 
 
 app.get("/", (req, res) => {
