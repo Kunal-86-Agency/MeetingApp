@@ -6,6 +6,7 @@ const UserModel = require("../Models/User.model");
 require("dotenv").config();
 
 exports.AuthLogin = async (req, res) => {
+
     const { email, password } = req.body;
     const test = { email, password }
     for (const key in test) {

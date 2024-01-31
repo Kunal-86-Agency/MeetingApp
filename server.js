@@ -1,10 +1,10 @@
 const Connection = require("./Config/db");
 const UserRouter = require("./Routes/User.routes");
+const AdminRouter = require("./Routes/Admin.routes");
 
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const AdminRouter = require("./Routes/Admin.routes");
 require("dotenv").config();
 
 
@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 app.get("/*", (req, res) => {
   console.log(`Route Not Found /* - URL : ${req.url}`)
   res.setHeader("Content-Type", "text/html");
-  res.redirect("http://localhost:3000");
+  res.status(404).send("Path Not Found" + ` ${req.url}`)
 });
 
 

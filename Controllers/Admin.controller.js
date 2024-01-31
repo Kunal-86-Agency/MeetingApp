@@ -29,6 +29,16 @@ exports.adminCreateUser = async (req, res) => {
         return res.status(500).send({ message: err?.message || "Something went Wrong" })
     }
 }
+exports.getAllUsers = async (req, res) => {
+
+    try {
+        let users = await UserModel.find()
+        return res.status(200).send({ message: "All Users ", success: true, users })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ message: error?.message || "Server Error 500" })
+    }
+}
 exports.DeleteUserById = async (req, res) => {
     let id = req.params.id
     try {
