@@ -6,8 +6,8 @@ const SendMail = require("../Config/SendMail");
 
 exports.adminCreateUser = async (req, res) => {
     let payload = req.body
-    let { email, password, first_name, last_name, phone_number } = req.body
-    const test = { email, password, first_name, last_name, phone_number: +phone_number }
+    let { email, password, name, phone_number } = req.body
+    const test = { email, password, name, phone_number: +phone_number }
 
     for (const key in test) {
         if (!test[key]) return res.status(401).send({ message: `Please Provide ${key}, Mandatory field missing: ${key}` })
