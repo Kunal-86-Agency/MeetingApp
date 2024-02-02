@@ -2,6 +2,7 @@ const UserModel = require("../Models/User.model")
 const AddressModel = require("../Models/Addresses.model");
 
 const bcrypt = require("bcrypt");
+const SendMail = require("../Config/SendMail");
 
 exports.adminCreateUser = async (req, res) => {
     let payload = req.body
@@ -51,8 +52,9 @@ exports.DeleteUserById = async (req, res) => {
 }
 exports.adminInviteUser = async (req, res) => {
     let id = req.params.id
+    let { recipientEmail, client_name, subject, content } = req.body
     try {
-
+        SendMail({ recipientEmail, client_name, subject, content })
         return res.status(200).send({ message: "Invite user with ID" + id })
     } catch (error) {
         console.log(error);
