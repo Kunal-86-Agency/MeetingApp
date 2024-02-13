@@ -6,7 +6,7 @@ const AdminRouter = require("express").Router();
 
 
 AdminRouter.get("/", (req, res) => res.send({ message: "Welcome to Admin Work Route" }));
-AdminRouter.post("/get-all", AdminController.getAllUsers);
+AdminRouter.get("/get-all", AdminController.getAllUsers);
 AdminRouter.post("/create-user", Authentication, Authorization(["Admin"]), AdminController.adminCreateUser);
 AdminRouter.post("/invite-user/:id", AdminController.adminInviteUser);
 AdminRouter.delete("/delete-user/:id", Authentication, Authorization(["Admin"]), AdminController.DeleteUserById);

@@ -2,17 +2,44 @@ const Connection = require("./Config/db");
 const UserRouter = require("./Routes/User.routes");
 const AdminRouter = require("./Routes/Admin.routes");
 
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
 require("dotenv").config();
-
+const express = require("express");
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require("cors");
 
 const app = express();
 
+app.use(express.json())
+const server = http.createServer(app);
+const io = socketIo(server);
+
 app.use(cors());
-app.use(express.static(path.join(__dirname, "Frontend", "dist")));
-app.use(express.json());
+
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+
+  socket.on('offer', (offer, targetSocketId) => {
+    // Broadcast the offer to the target client
+    io.to(targetSocketId).emit('offer', offer, socket.id);
+  });
+
+  socket.on('answer', (answer, targetSocketId) => {
+    // Broadcast the answer to the target client
+    io.to(targetSocketId).emit('answer', answer, socket.id);
+  });
+
+  socket.on('ice-candidate', (candidate, targetSocketId) => {
+    // Broadcast the ICE candidate to the target client
+    io.to(targetSocketId).emit('ice-candidate', candidate, socket.id);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 
 app.use("/user", UserRouter)
@@ -29,10 +56,11 @@ app.get("/", (req, res) => {
 });
 
 //? HTML Request
-app.get("/*", (req, res) => {
-  console.log(`Route Not Found /* - URL : ${req.url}`)
+// Exclude /socket.io/ from generic route handler
+app.get(/^(?!\/socket\.io\/).*/, (req, res) => {
+  console.log(`Route Not Found - URL : ${req.url}`);
   res.setHeader("Content-Type", "text/html");
-  res.status(404).send("Path Not Found" + ` ${req.url}`)
+  res.status(404).send("Path Not Found" + ` ${req.url}`);
 });
 
 

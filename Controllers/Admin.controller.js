@@ -3,6 +3,7 @@ const AddressModel = require("../Models/Addresses.model");
 
 const bcrypt = require("bcrypt");
 const SendMail = require("../Config/SendMail");
+const UserCreationTemplate = require("../Email/UserCreationTemplate");
 
 exports.adminCreateUser = async (req, res) => {
     let payload = req.body
@@ -22,6 +23,12 @@ exports.adminCreateUser = async (req, res) => {
             payload.password = hash
 
             const instance = new UserModel(payload)
+            SendMail({
+                recipientEmail: instance.email,
+                client_name: instance.first_name + ' ' + instance.last_name,
+                subject: 'Account Created',
+                content: UserCreationTemplate(instance),
+            })
             await instance.save()
             return res.status(200).send({ message: "New User Created Successfully", instance });
         })
@@ -33,8 +40,9 @@ exports.adminCreateUser = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
 
     try {
+
         let users = await UserModel.find()
-        return res.status(200).send({ message: "All Users ", success: true, users })
+        return res.status(200).send({ message: "All Users", success: true, users })
     } catch (error) {
         console.log(error);
         return res.status(500).send({ message: error?.message || "Server Error 500" })
