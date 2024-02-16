@@ -6,19 +6,22 @@ require("dotenv").config();
 const express = require("express");
 const http = require('http');
 const socketIo = require('socket.io');
+const { Server } = require('socket.io');
 const cors = require("cors");
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
+app.use(cors())
 app.use(express.json())
+app.use(express.urlencoded({ extended: false }));
+
 const server = http.createServer(app);
-const io = socketIo(server);
-
-app.use(cors());
-
+const io = socketIo(server, { cors: { origin: "*" } });
+const rooms = {};
 
 io.on('connection', (socket) => {
-  console.log('A user connected');
+  console.log('A User Connected', { socketId: socket.id });
 
 
   socket.on('offer', (offer, targetSocketId) => {
@@ -31,13 +34,26 @@ io.on('connection', (socket) => {
     io.to(targetSocketId).emit('answer', answer, socket.id);
   });
 
+
+  socket.on('create-room', () => {
+    const roomId = uuidv4().slice(0, 6);
+    socket.emit('room-created', roomId);
+  });
+
+
+  socket.on('join-room', (roomId) => {
+    socket.join(roomId);
+    io.to(roomId).emit('user-joined', socket.id);
+  });
+
   socket.on('ice-candidate', (candidate, targetSocketId) => {
     // Broadcast the ICE candidate to the target client
     io.to(targetSocketId).emit('ice-candidate', candidate, socket.id);
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
+  socket.on('disconnect', (x, y) => {
+    io.emit('user-disconnected', socket.id);
+    console.log('User disconnected', { socketId: socket.id });
   });
 });
 
@@ -65,7 +81,7 @@ app.get(/^(?!\/socket\.io\/).*/, (req, res) => {
 
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   try {
     await Connection;
     console.log("Database Connected");
