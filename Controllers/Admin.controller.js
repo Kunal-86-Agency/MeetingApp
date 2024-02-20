@@ -25,7 +25,7 @@ exports.adminCreateUser = async (req, res) => {
             const instance = new UserModel(payload)
             SendMail({
                 recipientEmail: instance.email,
-                client_name: instance.first_name + ' ' + instance.last_name,
+                client_name: instance.name,
                 subject: 'Account Created',
                 content: UserCreationTemplate(instance),
             })
